@@ -44,7 +44,7 @@ import java.util.List;
 
 // Google Map API project
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
-        GoogleApiClient.ConnectionCallbacks,  GoogleApiClient.OnConnectionFailedListener,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         GoogleMap.OnMarkerClickListener, LocationListener {
 
     private GoogleMap mMap;
@@ -100,12 +100,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        //LatLng sydney = new LatLng(-34, 151);
-        //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        // LatLng sydney = new LatLng(-34, 151);
+        // mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
 
         LatLng myPlace = new LatLng(40.73, -73.99);  // this is New York
         mMap.addMarker(new MarkerOptions().position(myPlace).title("My Favorite City"));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLng(myPlace));// it zooms completely out of world  view
+        // mMap.moveCamera(CameraUpdateFactory.newLatLng(myPlace));// it zooms completely out of world  view
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myPlace, 12));
 
         mMap.getUiSettings().setZoomControlsEnabled(true);
@@ -148,15 +148,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onStart() {
         super.onStart();
-        // 2
         mGoogleApiClient.connect();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        // 3
-        if( mGoogleApiClient != null && mGoogleApiClient.isConnected() ) {
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
     }
@@ -169,16 +167,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return;
         }
 
-        // 1
         mMap.setMyLocationEnabled(true);
 
-        // 2
         LocationAvailability locationAvailability =
                 LocationServices.FusedLocationApi.getLocationAvailability(mGoogleApiClient);
         if (null != locationAvailability && locationAvailability.isLocationAvailable()) {
-            // 3
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            // 4
             if (mLastLocation != null) {
                 LatLng currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation
                         .getLongitude());
@@ -191,10 +185,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     // putting marker on the map
     protected void placeMarkerOnMap(LatLng location) {
-        // 1
         MarkerOptions markerOptions = new MarkerOptions().position(location);
-        // 2
-        //chaning the color of default makrer on the screen
+        //changing the color of default marker on the screen
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
 
         String titleStr = getAddress(location);  // add these two lines
@@ -203,38 +195,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(markerOptions);
     }
 
-    private String getAddress( LatLng latLng ) {
-        // 1
-        Geocoder geocoder = new Geocoder( this );
+    private String getAddress(LatLng latLng) {
+        Geocoder geocoder = new Geocoder(this);
         String addressText = "";
         List<Address> addresses = null;
         Address address = null;
         try {
-            // 2
-            addresses = geocoder.getFromLocation( latLng.latitude, latLng.longitude, 1 );
-            // 3
+            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
             if (null != addresses && !addresses.isEmpty()) {
                 address = addresses.get(0);
                 for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
-                    addressText += (i == 0)?address.getAddressLine(i):("\n" + address.getAddressLine(i));
+                    addressText += (i == 0) ? address.getAddressLine(i) : ("\n" + address.getAddressLine(i));
                 }
             }
-        } catch (IOException e ) {
+        } catch (IOException e) {
         }
         return addressText;
     }
 
 
     protected void startLocationUpdates() {
-        //1
         if (ActivityCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     LOCATION_PERMISSION_REQUEST_CODE);
             return;
         }
-        //2
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest,
                 this);
     }
@@ -242,9 +229,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        // 2
         mLocationRequest.setInterval(10000);
-        // 3
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
@@ -260,19 +245,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onResult(@NonNull LocationSettingsResult result) {
                 final Status status = result.getStatus();
                 switch (status.getStatusCode()) {
-                    // 4
                     case LocationSettingsStatusCodes.SUCCESS:
                         mLocationUpdateState = true;
                         startLocationUpdates();
                         break;
-                    // 5
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                         try {
                             status.startResolutionForResult(MapsActivity.this, REQUEST_CHECK_SETTINGS);
                         } catch (IntentSender.SendIntentException e) {
                         }
                         break;
-                    // 6
                     case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
                         break;
                 }
@@ -281,10 +263,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-
-
-
-    // 1
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -306,14 +284,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    // 2
     @Override
     protected void onPause() {
         super.onPause();
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
-    // 3
     @Override
     public void onResume() {
         super.onResume();
@@ -328,12 +304,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         try {
             startActivityForResult(builder.build(MapsActivity.this), PLACE_PICKER_REQUEST);
-        } catch(GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
             e.printStackTrace();
         }
     }
-
-
 
 
 }
